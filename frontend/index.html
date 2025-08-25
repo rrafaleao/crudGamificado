@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabor & Arte - Restaurante</title>
+    <link rel="stylesheet" href="/frontend/assets/css/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Cabeçalho -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <h1>Sabor & Arte</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="/">Início</a></li>
+                    <li><a href="/reserva">Reservas</a></li>
+                    <li><a href="/cardapio">Cardápio</a></li>
+                </ul>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Seção Hero -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Bem-vindos ao Sabor & Arte</h1>
+            <p>Uma experiência gastronômica única onde cada prato é uma obra de arte</p>
+            <a href="#menu" class="cta-button">Reservar uma Mesa</a>
+        </div>
+        <div class="hero-image">
+            <img src="assets/images/food.jpg" alt="Pratos deliciosos do restaurante">
+        </div>
+    </section>
+
+    <!-- Sobre Nós -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Nossa História</h2>
+                    <p>Há mais de 15 anos, o Sabor & Arte tem sido um marco na gastronomia local, oferecendo uma experiência culinária excepcional que combina tradição e inovação.</p>
+                    <p>Nossa paixão pela culinária se reflete em cada prato cuidadosamente preparado pelos nossos chefs experientes, utilizando apenas ingredientes frescos e de alta qualidade.</p>
+                    <div class="features">
+                        <div class="feature">
+                            <h3>Ingredientes Frescos</h3>
+                            <p>Selecionamos cuidadosamente os melhores ingredientes locais</p>
+                        </div>
+                        <div class="feature">
+                            <h3>Chefs Experientes</h3>
+                            <p>Nossa equipe possui anos de experiência na alta gastronomia</p>
+                        </div>
+                        <div class="feature">
+                            <h3>Ambiente Acolhedor</h3>
+                            <p>Um espaço elegante e confortável para momentos especiais</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <img src="assets/images/ambiance.jpg" alt="Ambiente acolhedor do restaurante">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cardápio -->
+    <section id="menu" class="menu">
+        <div class="container">
+            <h2>Nosso Cardápio</h2>
+            <div class="menu-categories">
+                <div class="menu-category">
+                    <h3>Entradas</h3>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h4>Bruschetta Artesanal</h4>
+                            <p>Pão italiano tostado com tomates frescos, manjericão e azeite extra virgem</p>
+                        </div>
+                        <span class="price">R$ 28,00</span>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h4>Carpaccio de Salmão</h4>
+                            <p>Fatias finas de salmão fresco com alcaparras, rúcula e molho cítrico</p>
+                        </div>
+                        <span class="price">R$ 42,00</span>
+                    </div>
+                </div>
+
+                <div class="menu-category">
+                    <h3>Pratos Principais</h3>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h4>Risotto de Camarão</h4>
+                            <p>Arroz arbóreo cremoso com camarões grelhados e ervas finas</p>
+                        </div>
+                        <span class="price">R$ 68,00</span>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h4>Filé Mignon ao Molho Madeira</h4>
+                            <p>Filé mignon grelhado acompanhado de batatas rústicas e legumes salteados</p>
+                        </div>
+                        <span class="price">R$ 85,00</span>
+                    </div>
+                </div>
+
+                <div class="menu-category">
+                    <h3>Sobremesas</h3>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h4>Tiramisu da Casa</h4>
+                            <p>Clássico italiano com mascarpone, café e cacau</p>
+                        </div>
+                        <span class="price">R$ 24,00</span>
+                    </div>
+                    <div class="menu-item">
+                        <div class="item-info">
+                            <h4>Petit Gateau</h4>
+                            <p>Bolinho de chocolate quente com sorvete de baunilha</p>
+                        </div>
+                        <span class="price">R$ 26,00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Galeria -->
+    <section id="gallery" class="gallery">
+        <div class="container">
+            <h2>Nossa Galeria</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="assets/images/food.jpg" alt="Pratos especiais">
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/images/ambiance.jpg" alt="Ambiente do restaurante">
+                </div>
+                <div class="gallery-item">
+                    <img src="assets/images/staff.jpg" alt="Nossa equipe">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Rodapé -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Sabor & Arte</h3>
+                    <p>Uma experiência gastronômica única onde cada prato é uma obra de arte.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Links Rápidos</h3>
+                    <ul>
+                        <li><a href="#home">Início</a></li>
+                        <li><a href="#about">Sobre Nós</a></li>
+                        <li><a href="#menu">Cardápio</a></li>
+                        <li><a href="#contact">Contato</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Redes Sociais</h3>
+                    <div class="social-links">
+                        <a href="#">Facebook</a>
+                        <a href="#">Instagram</a>
+                        <a href="#">Twitter</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Sabor & Arte. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Menu mobile toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
