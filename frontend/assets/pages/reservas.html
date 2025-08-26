@@ -404,6 +404,7 @@
                     <li><a href="/frontend/assets/pages/reservas.html">Reservas</a></li>
                     <li><a href="/frontend/assets/pages/cardapio.html">Cardápio</a></li>
                     <li><a href="/frontend/assets/pages/ranking.html">Ranking do mês</a></li>
+                    <li><a href="/frontend/assets/pages/login.html">Login</a></li>
                 </ul>
                 <div class="hamburger">
                     <span></span>
@@ -421,15 +422,15 @@
             
             <div class="stats">
                 <div class="stat-card">
-                    <h3 id="total-reservas">8</h3>
+                    <h3 id="total-reservas">0</h3>
                     <p>Total</p>
                 </div>
                 <div class="stat-card">
-                    <h3 id="confirmadas">8</h3>
+                    <h3 id="confirmadas">0</h3>
                     <p>Confirmadas</p>
                 </div>
                 <div class="stat-card">
-                    <h3 id="finalizadas">8</h3>
+                    <h3 id="finalizadas">0</h3>
                     <p>Finalizadas</p>
                 </div>
             </div>
@@ -449,56 +450,6 @@
             
             <div id="reservas-lista" class="reservas-lista">
                 <!-- Reservas de exemplo -->
-                <div class="reserva-card" data-status="confirmada">
-                    <div class="reserva-header">
-                        <div class="reserva-info">
-                            <h3>Mesa 5 - 4 pessoas</h3>
-                            <p><strong>Data:</strong> 28 de Agosto, 2025</p>
-                            <p><strong>Horário:</strong> 19:30</p>
-                            <p><strong>Nome:</strong> Rafael</p>
-                        </div>
-                        <span class="status confirmada">Confirmada</span>
-                    </div>
-                    <div class="reserva-actions">
-                        <button onclick="verDetalhes(1)" class="btn btn-small">Ver Detalhes</button>
-                        <button onclick="editarReserva(1)" class="btn btn-small">Editar</button>
-                        <button onclick="cancelarReserva(1)" class="btn btn-secondary btn-small">Cancelar</button>
-                    </div>
-                </div>
-
-                <div class="reserva-card" data-status="confirmada">
-                    <div class="reserva-header">
-                        <div class="reserva-info">
-                            <h3>Mesa 2 - 2 pessoas</h3>
-                            <p><strong>Data:</strong> 30 de Agosto, 2025</p>
-                            <p><strong>Horário:</strong> 20:00</p>
-                            <p><strong>Nome:</strong> Rafael</p>
-                        </div>
-                        <span class="status confirmada">Confirmada</span>
-                    </div>
-                    <div class="reserva-actions">
-                        <button onclick="verDetalhes(2)" class="btn btn-small">Ver Detalhes</button>
-                        <button onclick="editarReserva(2)" class="btn btn-small">Editar</button>
-                        <button onclick="cancelarReserva(2)" class="btn btn-secondary btn-small">Cancelar</button>
-                    </div>
-                </div>
-
-                <div class="reserva-card" data-status="finalizada">
-                    <div class="reserva-header">
-                        <div class="reserva-info">
-                            <h3>Mesa 8 - 6 pessoas</h3>
-                            <p><strong>Data:</strong> 20 de Agosto, 2025</p>
-                            <p><strong>Horário:</strong> 18:30</p>
-                            <p><strong>Nome:</strong> Rafael</p>
-                        </div>
-                        <span class="status finalizada">Finalizada</span>
-                    </div>
-                    <div class="reserva-actions">
-                        <button onclick="verDetalhes(3)" class="btn btn-small">Ver Detalhes</button>
-                        <button onclick="avaliarExperiencia(3)" class="btn btn-primary btn-small">Avaliar</button>
-                    </div>
-                </div>
-            </div>
 
             <div id="empty-state" class="empty-state hidden">
                 <h3>Nenhuma reserva encontrada</h3>
