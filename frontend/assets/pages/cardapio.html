@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio - Sabor & Arte</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #d4af37;
+            font-weight: 700;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu a:hover {
+            color: #d4af37;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: #d4af37;
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 4px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #333;
+            transition: 0.3s;
+        }
+
+        /* Hero Section */
+        .hero-cardapio {
+            padding: 120px 0 60px;
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(248, 249, 250, 1) 100%);
+            text-align: center;
+        }
+
+        .hero-cardapio h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .hero-cardapio p {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Filtros de Categoria */
+        .filtros-categoria {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 3rem 0;
+            padding: 0 20px;
+        }
+
+        .filtro-btn {
+            padding: 12px 24px;
+            border: 2px solid #d4af37;
+            background: white;
+            color: #d4af37;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .filtro-btn.active,
+        .filtro-btn:hover {
+            background: #d4af37;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Menu Principal */
+        .menu-principal {
+            padding: 2rem 0;
+        }
+
+        .categoria {
+            margin-bottom: 4rem;
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .categoria:hover {
+            transform: translateY(-5px);
+        }
+
+        .categoria.hidden {
+            display: none;
+        }
+
+        .categoria-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .categoria-header::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(45deg, #d4af37, #f4d03f);
+            border-radius: 2px;
+        }
+
+        .categoria h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: #d4af37;
+            margin-bottom: 0.5rem;
+        }
+
+        .categoria-desc {
+            color: #666;
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+
+        .itens-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .item-menu {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+
+        .item-menu:last-child {
+            border-bottom: none;
+        }
+
+        .item-menu:hover {
+            padding-left: 1rem;
+            background: rgba(212, 175, 55, 0.05);
+            border-radius: 10px;
+        }
+
+        .item-info {
+            flex: 1;
+            padding-right: 1rem;
+        }
+
+        .item-nome {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .item-desc {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tag.vegetariano {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .tag.vegano {
+            background: #cce5f4;
+            color: #0c5460;
+        }
+
+        .tag.sem-gluten {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .item-preco {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #d4af37;
+            white-space: nowrap;
+            align-self: center;
+        }
+
+        /* Seção Destaque */
+        .destaque {
+            background: linear-gradient(135deg, #d4af37, #f4d03f);
+            color: white;
+            padding: 3rem;
+            border-radius: 20px;
+            margin: 3rem 0;
+            text-align: center;
+        }
+
+        .destaque h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .destaque p {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .destaque-pratos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .prato-destaque {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .prato-destaque h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Info Adicional */
+        .info-adicional {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 3rem 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-adicional h3 {
+            font-family: 'Playfair Display', serif;
+            color: #d4af37;
+            margin-bottom: 1rem;
+        }
+
+        .info-adicional p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-menu {
+                position: fixed;
+                left: -100%;
+                top: 80px;
+                flex-direction: column;
+                background-color: white;
+                width: 100%;
+                text-align: center;
+                transition: 0.3s;
+                box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+                padding: 2rem 0;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-menu li {
+                margin: 1rem 0;
+            }
+
+            .hero-cardapio h1 {
+                font-size: 2.2rem;
+            }
+
+            .categoria {
+                padding: 1.5rem;
+            }
+
+            .categoria h2 {
+                font-size: 1.8rem;
+            }
+
+            .item-menu {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .item-info {
+                padding-right: 0;
+            }
+
+            .item-preco {
+                align-self: flex-start;
+            }
+
+            .filtros-categoria {
+                gap: 0.5rem;
+            }
+
+            .filtro-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        .categoria img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Animações */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .categoria {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <h1>Sabor & Arte</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="/frontend">Início</a></li>
+                    <li><a href="/frontend/assets/pages/reservas.html">Reservas</a></li>
+                    <li><a href="/frontend/assets/pages/cardapio.html">Cardápio</a></li>
+                    <li><a href="/frontend/assets/pages/ranking.html">Ranking do mês</a></li>
+                </ul>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-cardapio">
+        <div class="container">
+            <h1>Nosso Cardápio</h1>
+            <p>Descubra uma experiência gastronômica única, onde cada prato conta uma história de sabor e tradição</p>
+        </div>
+    </section>
+
+    <!-- Filtros -->
+    <div class="filtros-categoria">
+        <button class="filtro-btn active" onclick="filtrarCategoria('todas')">Todas</button>
+        <button class="filtro-btn" onclick="filtrarCategoria('entradas')">Entradas</button>
+        <button class="filtro-btn" onclick="filtrarCategoria('principais')">Pratos Principais</button>
+        <button class="filtro-btn" onclick="filtrarCategoria('sobremesas')">Sobremesas</button>
+        <button class="filtro-btn" onclick="filtrarCategoria('bebidas')">Bebidas</button>
+    </div>
+
+    <!-- Menu Principal -->
+    <main class="menu-principal">
+        <div class="container">
+            <!-- Entradas -->
+            <section class="categoria" data-categoria="entradas">
+                <div class="categoria-header">
+                    <h2>Entradas</h2>
+                    <p class="categoria-desc">Para começar bem a experiência</p>
+                </div>
+                <img src="../images/entradas.jpg" alt="Entradas" style="width:100%; height:auto; border-radius:15px; margin-bottom:2rem;">
+                <div class="itens-grid">
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Bruschetta Artesanal</h3>
+                            <p class="item-desc">Pão italiano tostado com tomates frescos, manjericão, azeite extra virgem e queijo burrata</p>
+                            <div class="item-tags">
+                                <span class="tag vegetariano">Vegetariano</span>
+                            </div>
+                        </div>
+                        <div class="item-preco">R$ 28,00</div>
+                    </div>
+                    
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Carpaccio de Salmão</h3>
+                            <p class="item-desc">Fatias finas de salmão fresco com alcaparras, rúcula selvagem e molho cítrico especial</p>
+                            <div class="item-tags">
+                                <span class="tag sem-gluten">Sem Glúten</span>
+                            </div>
+                        </div>
+                        <div class="item-preco">R$ 42,00</div>
+                    </div>
+
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Entrada Vegana da Casa</h3>
+                            <p class="item-desc">Mix de cogumelos grelhados com quinoa, castanhas e molho tahine</p>
+                            <div class="item-tags">
+                                <span class="tag vegano">Vegano</span>
+                                <span class="tag sem-gluten">Sem Glúten</span>
+                            </div>
+                        </div>
+                        <div class="item-preco">R$ 32,00</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Destaque -->
+            <section class="destaque">
+                <h2>Especialidades da Casa</h2>
+                <p>Pratos únicos criados pelos nossos chefs experientes</p>
+                <div class="destaque-pratos">
+                    <div class="prato-destaque">
+                        <h3>Cordeiro com Crosta de Ervas</h3>
+                        <p>Preparado lentamente por 8 horas</p>
+                    </div>
+                    <div class="prato-destaque">
+                        <h3>Paella Valenciana</h3>
+                        <p>Receita tradicional espanhola</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pratos Principais -->
+            <section class="categoria" data-categoria="principais">
+                <div class="categoria-header">
+                    <h2>Pratos Principais</h2>
+                    <p class="categoria-desc">O coração da nossa gastronomia</p>
+                </div>
+                <img src="../images/pratos_principais.jpg" alt="Pratos Principais" style="width:100%; height:auto; border-radius:15px; margin-bottom:2rem;">
+                <div class="itens-grid">
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Risotto de Camarão</h3>
+                            <p class="item-desc">Arroz arbóreo cremoso com camarões grelhados, ervas finas e um toque de limão siciliano</p>
+                        </div>
+                        <div class="item-preco">R$ 68,00</div>
+                    </div>
+
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Filé Mignon ao Molho Madeira</h3>
+                            <p class="item-desc">Filé mignon grelhado acompanhado de batatas rústicas e legumes salteados na manteiga</p>
+                        </div>
+                        <div class="item-preco">R$ 85,00</div>
+                    </div>
+
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Salmão Grelhado</h3>
+                            <p class="item-desc">Com crosta de gergelim, servido com aspargos e purê de batata-doce</p>
+                            <div class="item-tags">
+                                <span class="tag sem-gluten">Sem Glúten</span>
+                            </div>
+                        </div>
+                        <div class="item-preco">R$ 72,00</div>
+                    </div>
+
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Lasanha Vegana</h3>
+                            <p class="item-desc">Camadas de massa fresca com recheio de cogumelos, espinafre e molho bechamel vegano</p>
+                            <div class="item-tags">
+                                <span class="tag vegano">Vegano</span>
+                            </div>
+                        </div>
+                        <div class="item-preco">R$ 54,00</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Sobremesas -->
+            <section class="categoria" data-categoria="sobremesas">
+                <div class="categoria-header">
+                    <h2>Sobremesas</h2>
+                    <p class="categoria-desc">O final perfeito para sua refeição</p>
+                </div>
+                <img src="../images/sobremesas.jpg" alt="Sobremesas" style="width:100%; height:auto; border-radius:15px; margin-bottom:2rem;">
+                <div class="itens-grid">
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Tiramisu da Casa</h3>
+                            <p class="item-desc">Clássico italiano com mascarpone, café expresso e cacau em pó</p>
+                            <div class="item-tags">
+                                <span class="tag vegetariano">Vegetariano</span>
+                            </div>
+                        </div>
+                        <div class="item-preco">R$ 24,00</div>
+                    </div>
+
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Petit Gateau</h3>
+                            <p class="item-desc">Bolinho de chocolate belga com interior cremoso e sorvete de baunilha artesanal</p>
+                        </div>
+                        <div class="item-preco">R$ 26,00</div>
+                    </div>
+
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Pavlova de Frutas Vermelhas</h3>
+                            <p class="item-desc">Merengue crocante com creme chantilly e mix de frutas vermelhas frescas</p>
+                            <div class="item-tags">
+                                <span class="tag vegetariano">Vegetariano</span>
+                                <span class="tag sem-gluten">Sem Glúten</span>
+                            </div>
+                        </div>
+                        <div class="item-preco">R$ 28,00</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bebidas -->
+            <section class="categoria" data-categoria="bebidas">
+                <div class="categoria-header">
+                    <h2>Bebidas</h2>
+                    <p class="categoria-desc">Para acompanhar e harmonizar</p>
+                </div>
+                <img src="../images/bebidas.jpg" alt="Bebidas" style="width:100%; height:auto; border-radius:15px; margin-bottom:2rem;">
+                <div class="itens-grid">
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Vinho Tinto Reserva</h3>
+                            <p class="item-desc">Seleção especial da casa - Taça ou Garrafa</p>
+                        </div>
+                        <div class="item-preco">R$ 18,00 / R$ 95,00</div>
+                    </div>
+
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Coquetel Signature</h3>
+                            <p class="item-desc">Drink exclusivo com gin artesanal, frutas cítricas e toque de manjericão</p>
+                        </div>
+                        <div class="item-preco">R$ 32,00</div>
+                    </div>
+
+                    <div class="item-menu">
+                        <div class="item-info">
+                            <h3 class="item-nome">Água Saborizada</h3>
+                            <p class="item-desc">Com pepino e hortelã ou frutas vermelhas</p>
+                        </div>
+                        <div class="item-preco">R$ 12,00</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Info Adicional -->
+            <section class="info-adicional">
+                <h3>Informações Importantes</h3>
+                <p><strong>Horário de Funcionamento:</strong> Terça a Domingo, das 18h às 23h</p>
+                <p><strong>Reservas:</strong> Recomendamos reserva prévia, especialmente nos finais de semana</p>
+                <p><strong>Alergias:</strong> Informe nossos garçons sobre qualquer restrição alimentar</p>
+                <p><strong>Taxa de Serviço:</strong> 10% opcional sobre o valor total</p>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // Menu mobile toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            
+            const spans = hamburger.querySelectorAll('span');
+            if (hamburger.classList.contains('active')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        });
+
+        // Filtro de categorias
+        function filtrarCategoria(categoria) {
+            const categorias = document.querySelectorAll('.categoria');
+            const botoes = document.querySelectorAll('.filtro-btn');
+
+            // Remove classe active de todos os botões
+            botoes.forEach(btn => btn.classList.remove('active'));
+            
+            // Adiciona classe active ao botão clicado
+            event.target.classList.add('active');
+
+            // Mostra/esconde categorias
+            categorias.forEach(cat => {
+                if (categoria === 'todas' || cat.dataset.categoria === categoria) {
+                    cat.classList.remove('hidden');
+                } else {
+                    cat.classList.add('hidden');
+                }
+            });
+
+            // Scroll suave para o início do menu
+            if (categoria !== 'todas') {
+                document.querySelector('.menu-principal').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // Smooth scrolling para links âncora
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Animação de entrada dos itens
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observa todos os itens do menu
+        document.querySelectorAll('.item-menu').forEach(item => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(30px)';
+            item.style.transition = 'all 0.6s ease';
+            observer.observe(item);
+        });
+    </script>
+</body>
+</html>
+</html>
+

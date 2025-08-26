@@ -5,15 +5,12 @@
 class Database {
     private static $instance = null;
     private $connection;
-    
-    // Configurações do banco - AJUSTE CONFORME SEU AMBIENTE
     private $host = 'localhost';
     private $db_name = 'restaurante_gamificado';
     private $username = 'root';
     private $password = '';
     private $charset = 'utf8mb4';
     
-    // Construtor privado para Singleton
     private function __construct() {
         try {
             $dsn = "mysql:host={$this->host};dbname={$this->db_name};charset={$this->charset}";

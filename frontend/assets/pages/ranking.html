@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking do Mês - Sabor & Arte</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+
+        .logo h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #d4af37;
+            font-weight: 700;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-menu a:hover {
+            color: #d4af37;
+        }
+
+        .nav-menu a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: #d4af37;
+            transition: width 0.3s ease;
+        }
+
+        .nav-menu a:hover::after {
+            width: 100%;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            gap: 4px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #333;
+            transition: 0.3s;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 120px 20px 50px;
+            min-height: 100vh;
+        }
+
+        /* Hero Section */
+        .hero-ranking {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .hero-ranking::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            z-index: -1;
+        }
+
+        .hero-ranking h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-ranking .trophy {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+        }
+
+        .hero-ranking p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Period Info */
+        .period-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .period-info h2 {
+            color: white;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .period-info p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .countdown-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .countdown-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .countdown-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Podium */
+        .podium {
+            display: flex;
+            justify-content: center;
+            align-items: end;
+            gap: 1rem;
+            margin: 3rem 0;
+            perspective: 1000px;
+        }
+
+        .podium-place {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .podium-place::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .podium-place:hover::before {
+            transform: translateX(100%);
+        }
+
+        .podium-place:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .first-place {
+            order: 2;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
+            border-color: #FFD700;
+            transform: scale(1.1);
+        }
+
+        .second-place {
+            order: 1;
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.3), rgba(169, 169, 169, 0.3));
+            border-color: #C0C0C0;
+        }
+
+        .third-place {
+            order: 3;
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.3), rgba(184, 115, 51, 0.3));
+            border-color: #CD7F32;
+        }
+
+        .podium-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            position: relative;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .first-place .podium-avatar {
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .podium-medal {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 1.5rem;
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+        }
+
+        .podium-name {
+            font-weight: 600;
+            color: white;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .podium-points {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FFD700;
+            margin-bottom: 0.5rem;
+        }
+
+        .podium-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Ranking List */
+        .ranking-list {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 3rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ranking-list h3 {
+            color: white;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .ranking-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .ranking-position {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            margin-right: 1rem;
+        }
+
+        .ranking-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ranking-info {
+            flex: 1;
+        }
+
+        .ranking-name {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .ranking-details {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .ranking-points {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #FFD700;
+            margin-left: 1rem;
+        }
+
+        /* Prize Section */
+        .prize-section {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            margin: 3rem 0;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .prize-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.1) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .prize-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .prize-section h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .prize-section .prize-emoji {
+            font-size: 3rem;
+            margin: 1rem 0;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+        }
+
+        .prize-section p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .prize-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #FFD700;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 1rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+
+            .nav-menu {
+                position: fixed;
+                left: -100%;
+                top: 80px;
+                flex-direction: column;
+                background-color: white;
+                width: 100%;
+                text-align: center;
+                transition: 0.3s;
+                box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
+                padding: 2rem 0;
+            }
+
+            .nav-menu.active {
+                left: 0;
+            }
+
+            .nav-menu li {
+                margin: 1rem 0;
+            }
+
+            .hero-ranking h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero-ranking .trophy {
+                font-size: 3rem;
+            }
+
+            .podium {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .podium-place {
+                width: 100%;
+                max-width: 300px;
+                margin-bottom: 1rem;
+            }
+
+            .first-place {
+                order: 1;
+                transform: none;
+            }
+
+            .second-place {
+                order: 2;
+            }
+
+            .third-place {
+                order: 3;
+            }
+
+            .countdown {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .ranking-item {
+                flex-wrap: wrap;
+                text-align: center;
+            }
+
+            .ranking-points {
+                margin-left: 0;
+                margin-top: 0.5rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .podium-place {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .podium-place:nth-child(1) { animation-delay: 0.1s; }
+        .podium-place:nth-child(2) { animation-delay: 0.3s; }
+        .podium-place:nth-child(3) { animation-delay: 0.5s; }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .hero-ranking .trophy {
+            animation: bounce 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <h1>Sabor & Arte</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="/frontend">Início</a></li>
+                    <li><a href="/frontend/assets/pages/reservas.html">Reservas</a></li>
+                    <li><a href="/frontend/assets/pages/cardapio.html">Cardápio</a></li>
+                    <li><a href="/frontend/assets/pages/ranking.html">Ranking do mês</a></li>
+                </ul>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero-ranking">
+                <h1>Ranking do Mês</h1>
+                <p>Compete com outros clientes e ganhe prêmios incríveis! Complete mais reservas e suba no ranking mensal.</p>
+            </section>
+
+            <!-- Period Info -->
+            <section class="period-info">
+                <h2>Agosto 2025</h2>
+                <p>Período de competição: 1 a 31 de Agosto</p>
+                <div class="countdown">
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="days">5</div>
+                        <div class="countdown-label">dias</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="hours">12</div>
+                        <div class="countdown-label">horas</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="minutes">34</div>
+                        <div class="countdown-label">minutos</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-number" id="seconds">22</div>
+                        <div class="countdown-label">segundos</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Podium -->
+            <section class="podium">
+                <div class="podium-place second-place">
+                    <div class="podium-medal">🥈</div>
+                    <div class="podium-avatar">MS</div>
+                    <div class="podium-name">Rafael</div>
+                    <div class="podium-points">8</div>
+                    <div class="podium-label">reservas concluídas</div>
+                </div>
+
+                <div class="podium-place first-place">
+                    <div class="podium-medal">🥇</div>
+                    <div class="podium-avatar">JS</div>
+                    <div class="podium-name">adasd</div>
+                    <div class="podium-points">12</div>
+                    <div class="podium-label">reservas concluídas</div>
+                </div>
+
+                <div class="podium-place third-place">
+                    <div class="podium-medal">🥉</div>
+                    <div class="podium-avatar">CO</div>
+                    <div class="podium-name">testtt</div>
+                    <div class="podium-points">7</div>
+                    <div class="podium-label">reservas concluídas</div>
+                </div>
+            </section>
+
+            <!-- Prize Section -->
+            <section class="prize-section">
+                <div class="prize-content">
+                    <h2>🎁 Prêmio do Mês</h2>
+                    <div class="prize-emoji">🍽️</div>
+                    <p>O cliente com mais reservas concluídas no mês ganha:</p>
+                    <div class="prize-value">Jantar Completo Para 2 Pessoas</div>
+                    <p>Inclui entrada, prato principal, sobremesa e bebida da casa!</p>
+                </div>
+            </section>
+
+            <!-- Ranking List -->
+            <section class="ranking-list">
+                <h3>🏅 Classificação Completa</h3>
+                
+                <div class="ranking-item">
+                    <div class="ranking-position">4</div>
+                    <div class="ranking-avatar">AF</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">Teste</div>
+                        <div class="ranking-details">Última reserva: 24/08/2025</div>
+                    </div>
+                    <div class="ranking-points">6</div>
+                </div>
+
+                <div class="ranking-item">
+                    <div class="ranking-position">5</div>
+                    <div class="ranking-avatar">RM</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">asdasd</div>
+                        <div class="ranking-details">Última reserva: 23/08/2025</div>
+                    </div>
+                    <div class="ranking-points">5</div>
+                </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Menu mobile toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navMenu.classList.toggle('active');
+            
+            const spans = hamburger.querySelectorAll('span');
+            if (hamburger.classList.contains('active')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(7px, -6px)';
+            } else {
+                spans[0].style.transform = 'none';
+                spans[1].style.opacity = '1';
+                spans[2].style.transform = 'none';
+            }
+        });
+
+        // Countdown timer
+        function updateCountdown() {
+            const endDate = new Date('2025-08-31T23:59:59').getTime();
+            const now = new Date().getTime();
+            const distance = endDate - now;
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = hours;
+            document.getElementById('minutes').textContent = minutes;
+            document.getElementById('seconds').textContent = seconds;
+
+            if (distance < 0) {
+                clearInterval(countdownTimer);
+                document.querySelector('.countdown').innerHTML = '<div class="countdown-item"><div class="countdown-number">Encerrado</div></div>';
+            }
+        }
+
+        const countdownTimer = setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        // Animações de entrada
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observa todos os itens do ranking
+        document.querySelectorAll('.ranking-item').forEach((item, index) => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateY(30px)';
+            item.style.transition = `all 0.6s ease ${index * 0.1}s`;
+            observer.observe(item);
+        });
+
+        // Efeito de hover nos itens do ranking
+        document.querySelectorAll('.ranking-item').forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                item.style.borderLeftColor = '#FFD700';
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                item.style.borderLeftColor = 'transparent';
+            });
+        });
+
+        // Parallax effect para o background
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.hero-ranking::before');
+            if (parallax) {
+                const speed = scrolled * 0.5;
+                parallax.style.transform = `translateY(${speed}px)`;
+            }
+        });
+    </script>
+</body>
+</html>

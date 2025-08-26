@@ -628,3 +628,8 @@ if (document.readyState === 'loading') {
 } else {
     initAuth();
 }
+
+function getUserData() {
+    // Substitua por sua lógica real de autenticação
+    return { id: 1, nome: "Usuário Teste" };
+}
