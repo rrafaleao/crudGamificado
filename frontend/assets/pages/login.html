@@ -71,6 +71,12 @@
             box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
         }
         
+        .auth-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         .auth-links {
             text-align: center;
             margin-top: 1.5rem;
@@ -87,22 +93,72 @@
         .auth-links a:hover {
             text-decoration: underline;
         }
+        
+        .message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            font-weight: 500;
+            text-align: center;
+        }
+        
+        .message-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
     </style>
 </head>
 <body>
+    <!-- Cabeçalho -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="logo">
+                    <h1>Sabor & Arte</h1>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="/frontend/">Início</a></li>
+                    <li><a href="/frontend/assets/pages/reservas.html">Reservas</a></li>
+                    <li><a href="/frontend/assets/pages/ranking.html">Ranking do mês</a></li>
+                    <li id="loginMenuItem"><a href="/frontend/assets/pages/login.html">Login</a></li>
+                    <li id="userMenuItem" style="display: none;">
+                        <div class="user-menu">
+                            <div class="user-avatar" id="userAvatar"></div>
+                            <span class="user-name" id="userName"></span>
+                            <div class="user-dropdown" id="userDropdown">
+                                <a href="#" class="logout-btn" id="logoutBtn">Sair</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
 
     <!-- Formulário de Login -->
     <div class="auth-container">
-        <h2>Login</h2>
-        <form class="auth-form">
+        <h2>Entrar</h2>
+        <form class="auth-form" id="loginForm">
             <div class="form-group">
                 <label for="email">E-mail</label>
-                <input type="email" id="email" placeholder="Seu e-mail" required>
+                <input type="email" id="email" name="email" placeholder="Seu e-mail" required>
             </div>
             
             <div class="form-group">
                 <label for="password">Senha</label>
-                <input type="password" id="password" placeholder="Sua senha" required>
+                <input type="password" id="password" name="password" placeholder="Sua senha" required>
             </div>
             
             <button type="submit" class="auth-button">Entrar</button>
@@ -114,20 +170,170 @@
     </div>
 
     <script>
-        // Menu mobile toggle
-        const hamburger = document.querySelector('.hamburger');
-        const navMenu = document.querySelector('.nav-menu');
+        // Função para fazer requisições à API
+        async function apiRequest(endpoint, options = {}) {
+            const baseUrl = 'http://localhost/backend/api/';
+            const url = baseUrl + endpoint;
+            
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            };
+            
+            const config = { ...defaultOptions, ...options };
+            
+            try {
+                const response = await fetch(url, config);
+                const data = await response.json();
+                
+                if (!response.ok && !data.success) {
+                    throw new Error(data.error || 'Erro na requisição');
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('Erro na API:', error);
+                throw error;
+            }
+        }
 
-        hamburger.addEventListener('click', () => {
-            hamburger.classList.toggle('active');
-            navMenu.classList.toggle('active');
-        });
+        // Função para exibir mensagens
+        function showMessage(message, type = 'info') {
+            // Remove mensagem anterior se existir
+            const oldMessage = document.querySelector('.message');
+            if (oldMessage) {
+                oldMessage.remove();
+            }
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            messageDiv.innerHTML = message;
+            
+            // Adicionar estilos
+            messageDiv.style.cssText = `
+                padding: 15px;
+                margin: 15px 0;
+                border-radius: 8px;
+                font-weight: 500;
+                text-align: center;
+                ${type === 'success' ? 'background: #d4edda; color: #155724; border: 1px solid #c3e6cb;' : ''}
+                ${type === 'error' ? 'background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb;' : ''}
+            `;
+            
+            // Inserir antes do formulário
+            const container = document.querySelector('.auth-container');
+            container.insertBefore(messageDiv, container.querySelector('.auth-form'));
+        }
 
-        // Validação simples do formulário
-        document.querySelector('.auth-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Aqui você normalmente faria uma requisição para o servidor
-            alert('Login realizado com sucesso!');
+        // Função principal para lidar com o login
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
+            // Coletar dados do formulário
+            const formData = {
+                email: document.getElementById('email').value.trim(),
+                senha: document.getElementById('password').value
+            };
+            
+            // Validação básica
+            if (!validateForm(formData)) {
+                return;
+            }
+            
+            // Estado de carregamento
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Entrando...';
+            
+            try {
+                const response = await apiRequest('auth.php?action=login', {
+                    method: 'POST',
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.success) {
+                    showMessage(`Login realizado com sucesso! Bem-vindo(a), ${response.data.user.nome}!`, 'success');
+                    
+                    // Salvar dados do usuário
+                    if (response.data.token) {
+                        localStorage.setItem('user_token', response.data.token);
+                        localStorage.setItem('user_data', JSON.stringify(response.data.user));
+                    }
+                    
+                    // Redirecionar após 2 segundos
+                    setTimeout(() => {
+                        window.location.href = '/frontend/';
+                    }, 2000);
+                    
+                } else {
+                    showMessage(response.error || 'Erro ao fazer login', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Erro no login:', error);
+                showMessage('Erro de conexão. Verifique se o servidor está rodando.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Entrar';
+            }
+        }
+
+        // Validação do formulário
+        function validateForm(data) {
+            if (!data.email || !isValidEmail(data.email)) {
+                showMessage('Email válido é obrigatório', 'error');
+                return false;
+            }
+            
+            if (!data.senha) {
+                showMessage('Senha é obrigatória', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Validar email
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // Inicializar quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu mobile toggle
+            const hamburger = document.querySelector('.hamburger');
+            const navMenu = document.querySelector('.nav-menu');
+
+            if (hamburger) {
+                hamburger.addEventListener('click', () => {
+                    hamburger.classList.toggle('active');
+                    navMenu.classList.toggle('active');
+                });
+            }
+
+            // Verificar se o usuário já está logado
+            function checkLoginStatus() {
+                const userToken = localStorage.getItem('user_token');
+                const userData = localStorage.getItem('user_data');
+                const loginMenuItem = document.getElementById('loginMenuItem');
+                const userMenuItem = document.getElementById('userMenuItem');
+                
+                if (userToken && userData) {
+                    // Se já estiver logado, redirecionar para a página inicial
+                    window.location.href = '/frontend/';
+                }
+            }
+
+            checkLoginStatus();
+
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm) {
+                loginForm.addEventListener('submit', handleLogin);
+            }
         });
     </script>
 </body>

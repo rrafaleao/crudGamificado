@@ -1,284 +1,317 @@
 <?php
-/**
- * API Reservas - CRUD completo para sistema de reservas
- * Sistema de Restaurante Gamificado
- */
+// backend/api/reservas.php
+header("Access-Control-Allow-Origin: *");
+header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: GET, POST, PUT, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-require_once '../config/cors.php';
-require_once '../models/Reservas.php';
+include_once '../config/database.php';
 
-// Ativar exibição de erros para depuração
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Verificar método HTTP
-$method = $_SERVER['REQUEST_METHOD'];
-$action = $_GET['action'] ?? '';
-
-// Função para verificar autenticação básica
-function verificarAuth() {
-    // Aqui você implementaria a verificação do token/sessão
-    // Por simplicidade, vamos apenas verificar se foi enviado um user_id
-    $input = getJsonInput();
-    if (!isset($input['usuario_id']) && !isset($_GET['usuario_id'])) {
-        jsonError('Usuário não autenticado', 401);
-        exit;
-    }
+// Para requisições OPTIONS (pré-voo)
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
 }
 
-switch ($action) {
-    
-    case 'criar':
-        if ($method !== 'POST') {
-            jsonError('Método não permitido', 405);
-            break;
-        }
-        
-        $dados = getJsonInput();
-        
-        // Validar campos obrigatórios
-        $campos_obrigatorios = ['usuario_id', 'mesa_id', 'data_reserva', 'horario', 'quantidade_pessoas'];
-        $validacao = validateRequired($dados, $campos_obrigatorios);
-        
-        if (!$validacao['valid']) {
-            jsonError('Campos obrigatórios: ' . implode(', ', $validacao['missing']), 400);
-            break;
-        }
-        
-        // Sanitizar dados
-        $dados = sanitizeInput($dados);
-        
-        // Validações adicionais
-        $errors = [];
-        
-        // Validar data (não pode ser no passado)
-        if (strtotime($dados['data_reserva']) < strtotime(date('Y-m-d'))) {
-            $errors[] = 'Data da reserva não pode ser no passado';
-        }
-        
-        // Validar horário (formato HH:MM)
-        if (!preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $dados['horario'])) {
-            $errors[] = 'Formato de horário inválido (use HH:MM)';
-        }
-        
-        // Validar quantidade de pessoas
-        if (!is_numeric($dados['quantidade_pessoas']) || $dados['quantidade_pessoas'] < 1 || $dados['quantidade_pessoas'] > 20) {
-            $errors[] = 'Quantidade de pessoas deve ser entre 1 e 20';
-        }
-        
-        // Validar horário de funcionamento (ex: 11:00 às 23:00)
-        $hora_abertura = '11:00';
-        $hora_fechamento = '23:00';
-        if ($dados['horario'] < $hora_abertura || $dados['horario'] > $hora_fechamento) {
-            $errors[] = "Horário deve ser entre $hora_abertura e $hora_fechamento";
-        }
-        
-        if (!empty($errors)) {
-            jsonError(implode('; ', $errors), 400);
-            break;
-        }
-        
-        $resultado = Reserva::criar($dados);
-        
-        if ($resultado['success']) {
-            jsonSuccess($resultado['data'], 'Reserva criada com sucesso! Você ganhou 50 pontos!');
-        } else {
-            jsonError($resultado['error'], 400);
-        }
-        break;
-        
-    case 'buscar':
-        if ($method !== 'GET') {
-            jsonError('Método não permitido', 405);
-            break;
-        }
-        
-        $id = $_GET['id'] ?? null;
-        
-        if (!$id) {
-            jsonError('ID da reserva é obrigatório', 400);
-            break;
-        }
-        
-        $reserva = Reserva::buscarPorId($id);
-        
-        if ($reserva) {
-            jsonSuccess($reserva, 'Reserva encontrada');
-        } else {
-            jsonError('Reserva não encontrada', 404);
-        }
-        break;
-        
-    case 'minhas':
-        if ($method !== 'GET') {
-            jsonError('Método não permitido', 405);
-            break;
-        }
-        
-        $usuario_id = $_GET['usuario_id'] ?? null;
-        $status = $_GET['status'] ?? null;
-        
-        if (!$usuario_id) {
-            jsonError('ID do usuário é obrigatório', 400);
-            break;
-        }
-        
-        $reservas = Reserva::buscarPorUsuario($usuario_id, $status);
-        
-        jsonSuccess($reservas, 'Reservas encontradas');
-        break;
-        
-    case 'proximas':
-        if ($method !== 'GET') {
-            jsonError('Método não permitido', 405);
-            break;
-        }
-        
-        $usuario_id = $_GET['usuario_id'] ?? null;
-        
-        if (!$usuario_id) {
-            jsonError('ID do usuário é obrigatório', 400);
-            break;
-        }
-        
-        $reservas = Reserva::buscarProximas($usuario_id);
-        
-        jsonSuccess($reservas, 'Próximas reservas encontradas');
-        break;
-        
-    case 'atualizar':
-        if ($method !== 'PUT') {
-            jsonError('Método não permitido', 405);
-            break;
-        }
-        
-        $id = $_GET['id'] ?? null;
-        
-        if (!$id) {
-            jsonError('ID da reserva é obrigatório', 400);
-            break;
-        }
-        
-        $dados = getJsonInput();
-        $dados = sanitizeInput($dados);
-        
-        // Validações condicionais
-        $errors = [];
-        
-        if (isset($dados['data_reserva']) && strtotime($dados['data_reserva']) < strtotime(date('Y-m-d'))) {
-            $errors[] = 'Data da reserva não pode ser no passado';
-        }
-        
-        if (isset($dados['horario']) && !preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $dados['horario'])) {
-            $errors[] = 'Formato de horário inválido (use HH:MM)';
-        }
-        
-        if (isset($dados['quantidade_pessoas']) && (!is_numeric($dados['quantidade_pessoas']) || $dados['quantidade_pessoas'] < 1 || $dados['quantidade_pessoas'] > 20)) {
-            $errors[] = 'Quantidade de pessoas deve ser entre 1 e 20';
-        }
-        
-        if (isset($dados['horario'])) {
-            $hora_abertura = '11:00';
-            $hora_fechamento = '23:00';
-            if ($dados['horario'] < $hora_abertura || $dados['horario'] > $hora_fechamento) {
-                $errors[] = "Horário deve ser entre $hora_abertura e $hora_fechamento";
+$database = Database::getInstance();
+$db = $database->getConnection();
+
+$method = $_SERVER['REQUEST_METHOD'];
+
+switch ($method) {
+    case 'GET':
+        // Obter reservas por usuário ou por ID de reserva
+        if (isset($_GET['usuario_id'])) {
+            $usuario_id = $_GET['usuario_id'];
+            
+            $query = "SELECT r.*, m.numero as mesa_numero 
+                      FROM reservas r 
+                      INNER JOIN mesas m ON r.mesa_id = m.id 
+                      WHERE r.usuario_id = :usuario_id 
+                      ORDER BY r.data_reserva DESC, r.horario DESC";
+            
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':usuario_id', $usuario_id);
+            $stmt->execute();
+            
+            $num = $stmt->rowCount();
+            
+            if ($num > 0) {
+                $reservas_arr = array();
+                $reservas_arr["records"] = array();
+                
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $reserva_item = array(
+                        "id" => $row['id'],
+                        "usuario_id" => $row['usuario_id'],
+                        "mesa_id" => $row['mesa_id'],
+                        "mesa_numero" => $row['mesa_numero'],
+                        "data_reserva" => $row['data_reserva'],
+                        "horario" => $row['horario'],
+                        "quantidade_pessoas" => $row['quantidade_pessoas'],
+                        "observacoes" => $row['observacoes'],
+                        "status" => $row['status'],
+                        "pontos_ganhos" => $row['pontos_ganhos']
+                    );
+                    array_push($reservas_arr["records"], $reserva_item);
+                }
+                
+                http_response_code(200);
+                echo json_encode($reservas_arr);
+            } else {
+                http_response_code(404);
+                echo json_encode(array("message" => "Nenhuma reserva encontrada."));
             }
-        }
-        
-        if (!empty($errors)) {
-            jsonError(implode('; ', $errors), 400);
-            break;
-        }
-        
-        $resultado = Reserva::atualizar($id, $dados);
-        
-        if ($resultado['success']) {
-            jsonSuccess($resultado['data'], 'Reserva atualizada com sucesso');
+        } else if (isset($_GET['reserva_id'])) {
+            // Buscar reserva por ID
+            $reserva_id = $_GET['reserva_id'];
+            
+            $query = "SELECT r.*, m.numero as mesa_numero 
+                      FROM reservas r 
+                      INNER JOIN mesas m ON r.mesa_id = m.id 
+                      WHERE r.id = :reserva_id";
+            
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':reserva_id', $reserva_id);
+            $stmt->execute();
+            
+            $num = $stmt->rowCount();
+            
+            if ($num > 0) {
+                $reservas_arr = array();
+                $reservas_arr["records"] = array();
+                
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $reserva_item = array(
+                        "id" => $row['id'],
+                        "usuario_id" => $row['usuario_id'],
+                        "mesa_id" => $row['mesa_id'],
+                        "mesa_numero" => $row['mesa_numero'],
+                        "data_reserva" => $row['data_reserva'],
+                        "horario" => $row['horario'],
+                        "quantidade_pessoas" => $row['quantidade_pessoas'],
+                        "observacoes" => $row['observacoes'],
+                        "status" => $row['status'],
+                        "pontos_ganhos" => $row['pontos_ganhos']
+                    );
+                    array_push($reservas_arr["records"], $reserva_item);
+                }
+                
+                http_response_code(200);
+                echo json_encode($reservas_arr);
+            } else {
+                http_response_code(404);
+                echo json_encode(array("message" => "Reserva não encontrada."));
+            }
         } else {
-            jsonError($resultado['error'], 400);
+            http_response_code(400);
+            echo json_encode(array("message" => "Necessário fornecer usuario_id ou reserva_id."));
         }
         break;
         
-    case 'cancelar':
-        if ($method !== 'DELETE' && $method !== 'PUT') {
-            jsonError('Método não permitido', 405);
-            break;
-        }
+    case 'POST':
+        // Criar nova reserva
+        $data = json_decode(file_get_contents("php://input"));
         
-        $id = $_GET['id'] ?? null;
-        $usuario_id = $_GET['usuario_id'] ?? null;
-        
-        if (!$id) {
-            jsonError('ID da reserva é obrigatório', 400);
-            break;
-        }
-        
-        $resultado = Reserva::cancelar($id, $usuario_id);
-        
-        if ($resultado['success']) {
-            jsonSuccess(null, $resultado['message']);
+        if (!empty($data->usuario_id) && !empty($data->mesa_id) && 
+            !empty($data->data_reserva) && !empty($data->horario) && 
+            !empty($data->quantidade_pessoas)) {
+            
+            // Verificar disponibilidade da mesa
+            $query_check = "SELECT id FROM reservas 
+                           WHERE mesa_id = :mesa_id 
+                           AND data_reserva = :data_reserva 
+                           AND horario = :horario 
+                           AND status != 'cancelada'";
+            
+            $stmt_check = $db->prepare($query_check);
+            $stmt_check->bindParam(':mesa_id', $data->mesa_id);
+            $stmt_check->bindParam(':data_reserva', $data->data_reserva);
+            $stmt_check->bindParam(':horario', $data->horario);
+            $stmt_check->execute();
+            
+            if ($stmt_check->rowCount() > 0) {
+                http_response_code(409);
+                echo json_encode(array("message" => "Mesa já reservada para este horário."));
+                break;
+            }
+            
+            // Inserir reserva
+            $query = "INSERT INTO reservas 
+                     (usuario_id, mesa_id, data_reserva, horario, quantidade_pessoas, observacoes, status, pontos_ganhos) 
+                     VALUES 
+                     (:usuario_id, :mesa_id, :data_reserva, :horario, :quantidade_pessoas, :observacoes, 'confirmada', 10)";
+            
+            $stmt = $db->prepare($query);
+            
+            $stmt->bindParam(':usuario_id', $data->usuario_id);
+            $stmt->bindParam(':mesa_id', $data->mesa_id);
+            $stmt->bindParam(':data_reserva', $data->data_reserva);
+            $stmt->bindParam(':horario', $data->horario);
+            $stmt->bindParam(':quantidade_pessoas', $data->quantidade_pessoas);
+            $stmt->bindParam(':observacoes', $data->observacoes);
+            
+            if ($stmt->execute()) {
+                // Atualizar pontos do usuário
+                $updatePontos = "UPDATE usuarios 
+                                SET pontos_mes_atual = pontos_mes_atual + 10, 
+                                    pontos_total = pontos_total + 10 
+                                WHERE id = :usuario_id";
+                $stmtUpdate = $db->prepare($updatePontos);
+                $stmtUpdate->bindParam(':usuario_id', $data->usuario_id);
+                $stmtUpdate->execute();
+
+                http_response_code(201);
+                echo json_encode(array("message" => "Reserva criada com sucesso."));
+            } else {
+                http_response_code(503);
+                echo json_encode(array("message" => "Não foi possível criar a reserva."));
+            }
         } else {
-            jsonError($resultado['error'], 400);
+            http_response_code(400);
+            echo json_encode(array("message" => "Dados incompletos."));
         }
         break;
         
-    case 'finalizar':
-        if ($method !== 'PUT') {
-            jsonError('Método não permitido', 405);
-            break;
-        }
+    case 'PUT':
+        // Atualizar reserva
+        $data = json_decode(file_get_contents("php://input"));
         
-        $id = $_GET['id'] ?? null;
-        
-        if (!$id) {
-            jsonError('ID da reserva é obrigatório', 400);
-            break;
-        }
-        
-        $resultado = Reserva::finalizar($id);
-        
-        if ($resultado['success']) {
-            jsonSuccess($resultado['data'], 'Reserva finalizada com sucesso');
+        if (!empty($data->id)) {
+            // Verificar se é um cancelamento
+            if (!empty($data->status) && $data->status === 'cancelada') {
+                $query = "UPDATE reservas SET status = 'cancelada' WHERE id = :id";
+                
+                $stmt = $db->prepare($query);
+                $stmt->bindParam(':id', $data->id);
+                
+                if ($stmt->execute()) {
+                    http_response_code(200);
+                    echo json_encode(array("message" => "Reserva cancelada com sucesso."));
+                } else {
+                    http_response_code(503);
+                    echo json_encode(array("message" => "Não foi possível cancelar a reserva."));
+                }
+            } else {
+                // Atualização normal da reserva
+                // Verificar disponibilidade da mesa (exceto para a própria reserva)
+                if (!empty($data->mesa_id) && !empty($data->data_reserva) && !empty($data->horario)) {
+                    $query_check = "SELECT id FROM reservas 
+                                   WHERE mesa_id = :mesa_id 
+                                   AND data_reserva = :data_reserva 
+                                   AND horario = :horario 
+                                   AND status != 'cancelada'
+                                   AND id != :id";
+                    
+                    $stmt_check = $db->prepare($query_check);
+                    $stmt_check->bindParam(':mesa_id', $data->mesa_id);
+                    $stmt_check->bindParam(':data_reserva', $data->data_reserva);
+                    $stmt_check->bindParam(':horario', $data->horario);
+                    $stmt_check->bindParam(':id', $data->id);
+                    $stmt_check->execute();
+                    
+                    if ($stmt_check->rowCount() > 0) {
+                        http_response_code(409);
+                        echo json_encode(array("message" => "Mesa já reservada para este horário."));
+                        break;
+                    }
+                }
+                
+                // Construir query dinamicamente com base nos campos fornecidos
+                $updates = [];
+                $params = [':id' => $data->id];
+                
+                if (!empty($data->mesa_id)) {
+                    $updates[] = "mesa_id = :mesa_id";
+                    $params[':mesa_id'] = $data->mesa_id;
+                }
+                
+                if (!empty($data->data_reserva)) {
+                    $updates[] = "data_reserva = :data_reserva";
+                    $params[':data_reserva'] = $data->data_reserva;
+                }
+                
+                if (!empty($data->horario)) {
+                    $updates[] = "horario = :horario";
+                    $params[':horario'] = $data->horario;
+                }
+                
+                if (!empty($data->quantidade_pessoas)) {
+                    $updates[] = "quantidade_pessoas = :quantidade_pessoas";
+                    $params[':quantidade_pessoas'] = $data->quantidade_pessoas;
+                }
+                
+                if (isset($data->observacoes)) {
+                    $updates[] = "observacoes = :observacoes";
+                    $params[':observacoes'] = $data->observacoes;
+                }
+                
+                if (count($updates) === 0) {
+                    http_response_code(400);
+                    echo json_encode(array("message" => "Nenhum dado fornecido para atualização."));
+                    break;
+                }
+                
+                $query = "UPDATE reservas SET " . implode(', ', $updates) . " WHERE id = :id";
+                $stmt = $db->prepare($query);
+                
+                if ($stmt->execute($params)) {
+                    http_response_code(200);
+                    echo json_encode(array("message" => "Reserva atualizada com sucesso."));
+                } else {
+                    http_response_code(503);
+                    echo json_encode(array("message" => "Não foi possível atualizar a reserva."));
+                }
+            }
         } else {
-            jsonError($resultado['error'], 400);
+            http_response_code(400);
+            echo json_encode(array("message" => "ID da reserva não fornecido."));
         }
         break;
+    case 'DELETE':
+        // Excluir reserva
+        $reserva_id = isset($_GET['id']) ? $_GET['id'] : null;
         
-    case 'mesas-disponiveis':
-        if ($method !== 'GET') {
-            jsonError('Método não permitido', 405);
-        }
-        $data = $_GET['data'] ?? null;
-        $horario = $_GET['horario'] ?? null;
-        $quantidade_pessoas = $_GET['quantidade_pessoas'] ?? null;
-        if (!$data || !$horario || !$quantidade_pessoas) {
-            jsonError('Parâmetros obrigatórios não informados');
-        }
-        $mesas = Reserva::buscarMesasDisponiveis($data, $horario, $quantidade_pessoas);
-        jsonSuccess($mesas);
-        break;
-        
-    case 'estatisticas':
-        if ($method !== 'GET') {
-            jsonError('Método não permitido', 405);
+        if (!$reserva_id) {
+            http_response_code(400);
+            echo json_encode(array("message" => "ID da reserva não fornecido."));
             break;
         }
         
-        $usuario_id = $_GET['usuario_id'] ?? null;
-        
-        if (!$usuario_id) {
-            jsonError('ID do usuário é obrigatório', 400);
-            break;
+        try {
+            // Primeiro verificar se a reserva existe e pertence ao usuário
+            $query_check = "SELECT usuario_id FROM reservas WHERE id = :id";
+            $stmt_check = $db->prepare($query_check);
+            $stmt_check->bindParam(':id', $reserva_id);
+            $stmt_check->execute();
+            
+            if ($stmt_check->rowCount() == 0) {
+                http_response_code(404);
+                echo json_encode(array("message" => "Reserva não encontrada."));
+                break;
+            }
+            
+            // Excluir a reserva
+            $query = "DELETE FROM reservas WHERE id = :id";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(':id', $reserva_id);
+            
+            if ($stmt->execute()) {
+                http_response_code(200);
+                echo json_encode(array("message" => "Reserva excluída com sucesso."));
+            } else {
+                http_response_code(503);
+                echo json_encode(array("message" => "Não foi possível excluir a reserva."));
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(array("message" => "Erro ao excluir reserva: " . $e->getMessage()));
         }
-        
-        $stats = Reserva::obterEstatisticas($usuario_id);
-        
-        jsonSuccess($stats, 'Estatísticas obtidas');
         break;
         
     default:
-        jsonError('Ação não encontrada. Ações disponíveis: criar, buscar, minhas, proximas, atualizar, cancelar, finalizar, mesas-disponiveis, estatisticas', 404);
+        http_response_code(405);
+        echo json_encode(array("message" => "Método não permitido."));
         break;
 }
 ?>
