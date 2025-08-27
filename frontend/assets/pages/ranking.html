@@ -27,14 +27,83 @@
         }
 
         /* Header */
-        .header {
-            position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 10px 0; /* Adicionado para melhor espaçamento */
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #d4af37;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .user-points {
+            font-size: 12px;
+            color: #d4af37;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+            min-width: 150px;
+            display: none;
             z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .user-dropdown.show {
+            display: block;
+        }
+        
+        .user-dropdown a {
+            display: block;
+            padding: 8px 15px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .user-dropdown a:hover {
+            background: #f5f5f5;
+        }
+        
+        .logout-btn {
+            color: #e74c3c !important;
+            border-top: 1px solid #eee;
+            margin-top: 5px;
+        }
+
+        /* Header corrigido */
+        .header {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
         }
 
         .nav-container {
@@ -44,7 +113,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 80px;
+            height: 80px; /* Altura fixa para o header */
         }
 
         .logo h1 {
@@ -52,12 +121,22 @@
             font-size: 2rem;
             color: #d4af37;
             font-weight: 700;
+            margin: 0;
         }
 
         .nav-menu {
             display: flex;
             list-style: none;
-            gap: 2rem;
+            margin: 0;
+            padding: 0;
+            align-items: center; /* Centraliza verticalmente os itens */
+        }
+
+        .nav-menu li {
+            margin: 0 15px;
+            height: 100%;
+            display: flex;
+            align-items: center; /* Centraliza verticalmente */
         }
 
         .nav-menu a {
@@ -66,6 +145,7 @@
             font-weight: 500;
             transition: color 0.3s ease;
             position: relative;
+            padding: 10px 0; /* Adiciona espaçamento vertical */
         }
 
         .nav-menu a:hover {
@@ -77,7 +157,7 @@
             position: absolute;
             width: 0;
             height: 2px;
-            bottom: -5px;
+            bottom: 5px; /* Ajustado para ficar alinhado com o texto */
             left: 0;
             background-color: #d4af37;
             transition: width 0.3s ease;
@@ -434,6 +514,7 @@
                 transition: 0.3s;
                 box-shadow: 0 10px 27px rgba(0, 0, 0, 0.05);
                 padding: 2rem 0;
+                height: auto;
             }
 
             .nav-menu.active {
@@ -442,6 +523,13 @@
 
             .nav-menu li {
                 margin: 1rem 0;
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .user-menu {
+                justify-content: center;
+                flex-direction: column;
             }
 
             .hero-ranking h1 {
@@ -463,42 +551,10 @@
                 margin-top: 0.5rem;
             }
         }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .ranking-item {
-            animation: fadeInUp 0.6s ease forwards;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateY(0);
-            }
-            40% {
-                transform: translateY(-10px);
-            }
-            60% {
-                transform: translateY(-5px);
-            }
-        }
-
-        .hero-ranking .trophy {
-            animation: bounce 2s infinite;
-        }
     </style>
 </head>
 <body>
-    <!-- Header -->
+    <!-- Header Corrigido -->
     <header class="header">
         <nav class="navbar">
             <div class="nav-container">
